@@ -1,0 +1,24 @@
+{
+  "name": "realtime-world-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@google-cloud/bigquery": "^7.7.1",
+    "@googlemaps/react-wrapper": "^1.1.35",
+    "@vis.gl/google-maps": "^1.1.0",
+    "deck.gl": "^9.0.10",
+    "next": "14.2.3",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "14.2.3"
+  }
+}

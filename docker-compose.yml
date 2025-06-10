@@ -1,0 +1,27 @@
+version: '3.8' # Specify a version for docker-compose
+
+services:
+  web:
+    build:
+      context: . # Use the current directory as the build context
+      dockerfile: Dockerfile # Specify the Dockerfile to use
+    ports:
+      - "3000:3000" # Map host port 3000 to container port 3000
+    volumes:
+      - .:/app # Mount the current directory to /app in the container for live code changes
+      # To avoid issues with node_modules being overwritten by the host's node_modules (if any),
+      # especially on different OS, you can add a named volume for node_modules:
+      # - /app/node_modules
+      # However, for local development, direct mounting is often preferred for simplicity.
+      # If you encounter issues with node_modules, uncomment the above line
+      # and ensure /app/node_modules is not mounted from the host.
+    env_file:
+      - .env.local # Load environment variables from .env.local file
+    # Ensure the Next.js development server can be accessed from the host
+    # by binding to 0.0.0.0. This is usually handled by `next dev` itself,
+    # but if not, you might need to adjust the CMD in Dockerfile or here.
+    # command: npm run dev # This is already the CMD in the Dockerfile
+
+# Optional: Define a named volume for node_modules if needed
+# volumes:
+#   node_modules:
