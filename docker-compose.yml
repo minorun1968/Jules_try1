@@ -9,6 +9,7 @@ services:
       - "3000:3000" # Map host port 3000 to container port 3000
     volumes:
       - .:/app # Mount the current directory to /app in the container for live code changes
+      - /app/node_modules
       # To avoid issues with node_modules being overwritten by the host's node_modules (if any),
       # especially on different OS, you can add a named volume for node_modules:
       # - /app/node_modules

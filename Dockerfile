@@ -1,19 +1,17 @@
-# Use Node.js 20 as the base image
-FROM node:20-slim
+# Use a more specific Node.js 20 image for better security and reproducibility
+FROM node:20-bookworm-slim
 
 # Set the working directory in the container
 WORKDIR /app
 
+# Add node_modules/.bin to the PATH environment variable
+# Use the recommended key="value" format for the ENV instruction
+ENV PATH="/app/node_modules/.bin:${PATH}"
+
 # Copy package.json and package-lock.json (if available)
-# If package-lock.json is not used, you might need to adjust this
-# For npm, it's package-lock.json. For yarn, it's yarn.lock.
-# Assuming npm is used based on package.json scripts.
-COPY package.json ./
-# COPY package-lock.json ./
+COPY package*.json ./
 
 # Install dependencies
-# Using --omit=dev for a smaller production image, but for dev mode, devDependencies might be needed.
-# The issue specifies "development mode", so we should install all dependencies.
 RUN npm install
 
 # Copy the rest of the application source code
@@ -23,4 +21,5 @@ COPY . .
 EXPOSE 3000
 
 # Command to run the application in development mode
-CMD ["npm", "run", "dev"]
+# Use npx to ensure the 'next' command is found and executed correctly.
+CMD ["npx", "next", "dev"]
