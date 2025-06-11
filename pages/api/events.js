@@ -41,18 +41,35 @@ export default async function handler(req, res) {
   // SQL query to fetch data from GDELT
   const query = `
     SELECT
-      GLOBALEVENTID,
-      SQLDATE,
-      Actor1Geo_Lat,
-      Actor1Geo_Long,
-      SOURCEURL,
-      AvgTone
+      t1.GLOBALEVENTID,
+      t1.SQLDATE,
+      t1.Actor1Geo_Lat,
+      t1.Actor1Geo_Long,
+      t1.SOURCEURL,
+      t1.AvgTone,
+      t1.Actor1Geo_Fullname,
+      t1.NumMentions
     FROM
-      \`gdelt-bq.gdeltv2.events\`
+      \`gdelt-bq.gdeltv2.events\` AS t1
+    JOIN
+      \`gdelt-bq.gdeltv2.eventthemes\` AS t2 ON t1.GLOBALEVENTID = t2.GLOBALEVENTID
     WHERE
-      SQLDATE >= DATE_SUB(CURRENT_DATE('UTC'), INTERVAL 1 DAY)
-      AND Actor1Geo_Lat IS NOT NULL
-      AND Actor1Geo_Long IS NOT NULL
+      t1.SQLDATE >= DATE_SUB(CURRENT_DATE('UTC'), INTERVAL 1 DAY)
+      AND t1.Actor1Geo_Lat IS NOT NULL
+      AND t1.Actor1Geo_Long IS NOT NULL
+      AND t2.Theme LIKE 'SOC_%'
+      AND t1.NumMentions >= 10
+    GROUP BY
+      t1.GLOBALEVENTID,
+      t1.SQLDATE,
+      t1.Actor1Geo_Lat,
+      t1.Actor1Geo_Long,
+      t1.SOURCEURL,
+      t1.AvgTone,
+      t1.Actor1Geo_Fullname,
+      t1.NumMentions
+    ORDER BY
+      t1.NumMentions DESC
     LIMIT 1000
   `;
 

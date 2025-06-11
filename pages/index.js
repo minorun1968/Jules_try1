@@ -16,6 +16,26 @@ const INITIAL_VIEW_STATE = {
   bearing: 0,
 };
 
+// Function to generate a title from a URL
+const generateTitleFromUrl = (url) => {
+  if (!url) return 'No title available';
+  try {
+    const path = new URL(url).pathname;
+    // Get the last part of the path
+    const lastSegment = path.substring(path.lastIndexOf('/') + 1);
+    // Replace hyphens and underscores with spaces, then decode URI components
+    const decodedSegment = decodeURIComponent(lastSegment.replace(/[-_]/g, ' '));
+    // Basic capitalization (optional, but can make it look nicer)
+    return decodedSegment.replace(/\b\w/g, char => char.toUpperCase());
+  } catch (e) {
+    console.error('Error generating title from URL:', e);
+    // Fallback to a generic title or the segment before processing
+    const parts = url.split('/');
+    const fallback = parts.pop() || parts.pop(); // Handles trailing slash
+    return fallback ? fallback.replace(/[-_]/g, ' ') : 'Untitled Event';
+  }
+};
+
 // Function to determine color based on AvgTone
 const getColor = (avgTone) => {
   if (avgTone >= 2) {
@@ -68,16 +88,16 @@ const IndexPage = () => {
       data: events,
       pickable: true,
       opacity: 0.8,
-      stroked: true,
+      stroked: true, // Keep stroke for better visibility
       filled: true,
-      radiusScale: 6,
-      radiusMinPixels: 5, // Adjusted for better visibility at different zoom levels
-      radiusMaxPixels: 100,
+      radiusScale: 6, // Adjust as needed, works with getRadius in meters
+      radiusMinPixels: 2, // Minimum size on screen
+      radiusMaxPixels: 50, // Maximum size on screen
       lineWidthMinPixels: 1,
       getPosition: (d) => [d.Actor1Geo_Long, d.Actor1Geo_Lat],
-      getRadius: 5000, // Radius in meters
-      getFillColor: (d) => getColor(d.AvgTone),
-      getLineColor: [0, 0, 0],
+      getRadius: d => Math.sqrt(d.NumMentions || 1) * 100, // Radius driven by NumMentions
+      getFillColor: (d) => getColor(d.AvgTone), // Color by AvgTone
+      getLineColor: [0, 0, 0, 150], // Slightly transparent black stroke
       onHover: (info) => {
         if (info.object) {
           setTooltip({
@@ -253,18 +273,28 @@ const IndexPage = () => {
         {tooltip && tooltip.object && (
           <div style={{
             position: 'absolute',
-            left: tooltip.x + 5, // offset from cursor
-            top: tooltip.y + 5,  // offset from cursor
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            color: 'white',
-            padding: '8px',
-            borderRadius: '4px',
-            fontSize: '0.9em',
-            maxWidth: '300px',
+            left: tooltip.x + 10, // Adjusted offset
+            top: tooltip.y + 10,  // Adjusted offset
+            backgroundColor: 'rgba(30, 30, 30, 0.9)', // Darker background for better contrast
+            color: '#fff',
+            padding: '10px',
+            borderRadius: '6px',
+            fontSize: '14px', // Slightly larger font
+            maxWidth: '350px',
             wordWrap: 'break-word',
-            zIndex: 20, // Ensure tooltip is above map
+            zIndex: 20,
+            fontFamily: 'Arial, sans-serif', // More readable font
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)', // Subtle shadow
           }}>
-            {tooltip.object.SOURCEURL}
+            <div style={{ fontWeight: 'bold', marginBottom: '5px', fontSize: '16px' }}>
+              {tooltip.object.Actor1Geo_Fullname || 'Unknown Location'}
+            </div>
+            <div style={{ marginBottom: '3px', color: '#ccc' }}> {/* Lighter color for title */}
+              {generateTitleFromUrl(tooltip.object.SOURCEURL)}
+            </div>
+            <div style={{ color: '#87CEFA', fontSize: '12px' }}> {/* Light blue for score */}
+              Mention Score: {tooltip.object.NumMentions || 0}
+            </div>
           </div>
         )}
       </div>
