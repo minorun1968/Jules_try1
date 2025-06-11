@@ -31,30 +31,26 @@ export default async function handler(req, res) {
 
   try {
     const yesterdayInt = getYesterdayAsInteger();
+    // SQLクエリを、存在するEventRootCodeでフィルタリングするように修正
     const query = `
       SELECT
-        t1.GLOBALEVENTID,
-        t1.SQLDATE,
-        t1.ActionGeo_Lat,
-        t1.ActionGeo_Long,
-        t1.ActionGeo_Fullname,
-        t1.SOURCEURL,
-        t1.AvgTone,
-        t1.NumMentions
+        GLOBALEVENTID,
+        SQLDATE,
+        ActionGeo_Lat,
+        ActionGeo_Long,
+        ActionGeo_Fullname,
+        SOURCEURL,
+        AvgTone,
+        NumMentions
       FROM
-        \`gdelt-bq.gdeltv2.events\` AS t1
-      INNER JOIN
-        \`gdelt-bq.gdeltv2.eventthemes\` AS t2
-      ON
-        t1.GLOBALEVENTID = t2.GLOBALEVENTID
+        \`gdelt-bq.gdeltv2.events\`
       WHERE
-        t1.SQLDATE >= @yesterday
-        AND t1.ActionGeo_Lat IS NOT NULL
-        AND t1.ActionGeo_Long IS NOT NULL
-        AND t2.Theme LIKE 'SOC_%'
-        AND t1.NumMentions >= 10
-      GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
-      ORDER BY t1.NumMentions DESC
+        SQLDATE >= @yesterday
+        AND ActionGeo_Lat IS NOT NULL
+        AND ActionGeo_Long IS NOT NULL
+        AND EventRootCode IN ('14', '17') -- '14'(抗議活動)や'17'(政治的反対)などの社会的なイベントに絞る
+        AND NumMentions >= 10
+      ORDER BY NumMentions DESC
       LIMIT 1000`;
 
     const options = {
