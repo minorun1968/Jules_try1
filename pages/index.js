@@ -284,16 +284,13 @@ const IndexPage = () => {
             wordWrap: 'break-word',
             zIndex: 20,
             fontFamily: 'Arial, sans-serif', // More readable font
-            boxShadow: '0 4px 8px rgba(0,0,0,0.2)', // Subtle shadow
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
           }}>
             <div style={{ fontWeight: 'bold', marginBottom: '5px', fontSize: '16px' }}>
               {tooltip.object.Actor1Geo_Fullname || 'Unknown Location'}
             </div>
-            <div style={{ marginBottom: '3px', color: '#ccc' }}> {/* Lighter color for title */}
+            <div style={{ color: '#eee', fontSize: '13px' }}> {/* Slightly adjusted color/size for title */}
               {generateTitleFromUrl(tooltip.object.SOURCEURL)}
-            </div>
-            <div style={{ color: '#87CEFA', fontSize: '12px' }}> {/* Light blue for score */}
-              Mention Score: {tooltip.object.NumMentions || 0}
             </div>
           </div>
         )}

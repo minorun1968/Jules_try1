@@ -43,11 +43,11 @@ export default async function handler(req, res) {
     SELECT
       t1.GLOBALEVENTID,
       t1.SQLDATE,
-      t1.Actor1Geo_Lat,
-      t1.Actor1Geo_Long,
+      t1.ActionGeo_Lat AS Actor1Geo_Lat,       -- Aliased
+      t1.ActionGeo_Long AS Actor1Geo_Long,     -- Aliased
       t1.SOURCEURL,
       t1.AvgTone,
-      t1.Actor1Geo_Fullname,
+      t1.ActionGeo_Fullname AS Actor1Geo_Fullname, -- Aliased
       t1.NumMentions
     FROM
       \`gdelt-bq.gdeltv2.events\` AS t1
@@ -55,18 +55,18 @@ export default async function handler(req, res) {
       \`gdelt-bq.gdeltv2.eventthemes\` AS t2 ON t1.GLOBALEVENTID = t2.GLOBALEVENTID
     WHERE
       t1.SQLDATE >= DATE_SUB(CURRENT_DATE('UTC'), INTERVAL 1 DAY)
-      AND t1.Actor1Geo_Lat IS NOT NULL
-      AND t1.Actor1Geo_Long IS NOT NULL
+      AND t1.ActionGeo_Lat IS NOT NULL
+      AND t1.ActionGeo_Long IS NOT NULL
       AND t2.Theme LIKE 'SOC_%'
       AND t1.NumMentions >= 10
     GROUP BY
       t1.GLOBALEVENTID,
       t1.SQLDATE,
-      t1.Actor1Geo_Lat,
-      t1.Actor1Geo_Long,
+      t1.ActionGeo_Lat,    -- Group by original ActionGeo fields
+      t1.ActionGeo_Long,   -- Group by original ActionGeo fields
       t1.SOURCEURL,
       t1.AvgTone,
-      t1.Actor1Geo_Fullname,
+      t1.ActionGeo_Fullname, -- Group by original ActionGeo fields
       t1.NumMentions
     ORDER BY
       t1.NumMentions DESC
